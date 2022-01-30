@@ -13,6 +13,8 @@ class AddMoneyVC: UIViewController {
     let addAmountButton             = CRButton(title: "deposit amount shown")
     let amountLabel                 = CRTitleLabel(textAlignment: .center, fontSize: 150, titleColor: .white)
     let depositDetaiilsTableView    = UITableView()
+    let fundingLabel                = CRTitleLabel(textAlignment: .left, fontSize: 24, titleColor: .white)
+    let linkLabel                   = CRBodyLabel(titleColor: .white, font: UIFont.systemFont(ofSize: 24))
     
     var counter                     = 0
     var tableViewData: [CRTableViewModel] = getDummyData()
@@ -25,6 +27,7 @@ class AddMoneyVC: UIViewController {
         configureAmountLabel()
         configureTableView()
         createPanGestureRecognizer()
+        configureTitleLabels()
     }
     
     @objc func addAmount(){
@@ -36,32 +39,29 @@ class AddMoneyVC: UIViewController {
         panGestureView.addGestureRecognizer(panGesture)
     }
     
+    func setButtonAndCounter(updateCounter: Bool, enableButton: Bool,buttonOpacity:Float){
+        DispatchQueue.main.async {
+            if updateCounter {self.amountLabel.text = "$\(self.counter)"}
+            self.addAmountButton.isUserInteractionEnabled   = enableButton
+            self.addAmountButton.layer.opacity              = buttonOpacity
+        }
+    }
+    
     @objc func handleGesture(_ sender: UIPanGestureRecognizer){
         switch sender.state{
             case .changed:
                 if sender.velocity(in: panGestureView).x > 0 {
                     counter += 5
-                    DispatchQueue.main.async {
-                        self.amountLabel.text                           = "$\(self.counter)"
-                        self.addAmountButton.isUserInteractionEnabled   = true
-                        self.addAmountButton.layer.opacity              = 1
-                    }
+                    setButtonAndCounter(updateCounter: true, enableButton: true, buttonOpacity: 1)
                 } else if counter > 0{
                     counter -= 5
-                    DispatchQueue.main.async {
-                        self.amountLabel.text                           = "$\(self.counter)"
-                        self.addAmountButton.isUserInteractionEnabled   = true
-                        self.addAmountButton.layer.opacity              = 1
-                    }
+                    setButtonAndCounter(updateCounter: true, enableButton: true, buttonOpacity: 1)
                 }
             default:
                 break
         }
         if counter == 0 {
-            DispatchQueue.main.async {
-                self.addAmountButton.isUserInteractionEnabled   = false
-                self.addAmountButton.layer.opacity              = 0.5
-            }
+            setButtonAndCounter(updateCounter: false, enableButton: false, buttonOpacity: 0.5)
         }
     }
     
@@ -118,37 +118,37 @@ class AddMoneyVC: UIViewController {
             
         ])
     }
+    
+    func configureTitleLabels(){
+        view.addSubview(fundingLabel)
+        view.addSubview(linkLabel)
+        fundingLabel.text = "funding"
+        linkLabel.text = "link"
+        NSLayoutConstraint.activate([
+            fundingLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 40),
+            fundingLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 12),
+            linkLabel.leadingAnchor.constraint(equalTo: fundingLabel.trailingAnchor),
+            linkLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 40)
+        ])
+    }
 }
 extension AddMoneyVC: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section {
-            case 0:
-                return 2
-            case 1:
-                return 1
-            default: return 0
-        }
+        return tableViewData[section].celldata.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: DepositDetailsCell.reuseID, for: indexPath as IndexPath) as! DepositDetailsCell
-        let cellToDisplay = cell.displayText(cell: cell, row: indexPath.row, section: indexPath.section)
-        return cellToDisplay
+        cell.set(cellData: tableViewData[indexPath.section].celldata[indexPath.row])
+        return cell
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return tableViewData.count
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        switch section {
-            case 0:
-                return "deposit speed"
-            case 1:
-                return "deposit from"
-            default:
-                return ""
-        }
+        return tableViewData[section].header
     }
     
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {

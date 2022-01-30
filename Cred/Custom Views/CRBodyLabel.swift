@@ -18,9 +18,10 @@ class CRBodyLabel: UILabel {
         fatalError("init(coder:) has not been implemented")
     }
     
-    init(titleColor: UIColor){
+    init(titleColor: UIColor, font: UIFont?){
         super.init(frame: .zero)
         self.textColor      = titleColor
+        self.font           = font ?? UIFont.systemFont(ofSize: 16)
         configure()
     }
     
@@ -28,7 +29,6 @@ class CRBodyLabel: UILabel {
         adjustsFontSizeToFitWidth = true
         minimumScaleFactor        = 0.9
         lineBreakMode             = .byTruncatingTail
-        font                      = UIFont.systemFont(ofSize: 16)
         textAlignment             = .left
         translatesAutoresizingMaskIntoConstraints = false
     }

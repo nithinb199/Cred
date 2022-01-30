@@ -16,7 +16,7 @@ struct CellData{
     let blackLabel : String
     let pinkLabel : String
 }
-func getDummyData () -> [CRTableViewModel]{
+func getDummyData()->[CRTableViewModel]{
     let data: [CRTableViewModel] = [
         CRTableViewModel(header: "deposit speed", celldata: [
             CellData(blackLabel: "standard (1-3 days) max $2000 - ", pinkLabel: "enable"),
